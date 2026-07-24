@@ -11,6 +11,11 @@ import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
 import { cn } from "@/lib/utils";
 
+// prefetch is disabled on nav links: with the database in Mumbai and the
+// server in another region, each prefetch is a slow cross-region round trip,
+// and prefetching every nav link on load fired a burst that clogged the
+// connection. Links still navigate normally on click.
+
 export function SiteHeader() {
   const [open, setOpen] = React.useState(false);
   const [signedIn, setSignedIn] = React.useState(false);
@@ -28,7 +33,7 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <Link href="/" className="flex items-center gap-2 font-semibold">
+        <Link href="/" prefetch={false} className="flex items-center gap-2 font-semibold">
           <span
             className="grid size-8 place-items-center rounded-md text-sm font-bold text-white"
             style={{ background: "var(--brand-gradient)" }}
@@ -44,6 +49,7 @@ export function SiteHeader() {
             <Link
               key={item.href}
               href={item.href}
+              prefetch={false}
               className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               {item.title}
@@ -56,7 +62,7 @@ export function SiteHeader() {
           {signedIn ? (
             <>
               <Button asChild variant="ghost" className="hidden sm:inline-flex">
-                <Link href="/dashboard">Dashboard</Link>
+                <Link href="/dashboard" prefetch={false}>Dashboard</Link>
               </Button>
               <form action={logout} className="hidden sm:block">
                 <Button type="submit" variant="outline">Log out</Button>
@@ -65,10 +71,10 @@ export function SiteHeader() {
           ) : (
             <>
               <Button asChild variant="ghost" className="hidden sm:inline-flex">
-                <Link href="/login">Log in</Link>
+                <Link href="/login" prefetch={false}>Log in</Link>
               </Button>
               <Button asChild className="hidden sm:inline-flex">
-                <Link href="/pricing">Enroll</Link>
+                <Link href="/pricing" prefetch={false}>Enroll</Link>
               </Button>
             </>
           )}
@@ -92,6 +98,7 @@ export function SiteHeader() {
             <Link
               key={item.href}
               href={item.href}
+              prefetch={false}
               onClick={() => setOpen(false)}
               className="rounded-md px-2 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             >
@@ -102,6 +109,7 @@ export function SiteHeader() {
             <>
               <Link
                 href="/dashboard"
+                prefetch={false}
                 onClick={() => setOpen(false)}
                 className="rounded-md px-2 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
               >
@@ -115,13 +123,14 @@ export function SiteHeader() {
             <>
               <Link
                 href="/login"
+                prefetch={false}
                 onClick={() => setOpen(false)}
                 className="rounded-md px-2 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
               >
                 Log in
               </Link>
               <Button asChild className="mt-2 w-full">
-                <Link href="/pricing" onClick={() => setOpen(false)}>Enroll</Link>
+                <Link href="/pricing" prefetch={false} onClick={() => setOpen(false)}>Enroll</Link>
               </Button>
             </>
           )}
