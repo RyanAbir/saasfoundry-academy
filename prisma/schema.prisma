@@ -5,9 +5,10 @@
 
 generator client {
   provider = "prisma-client-js"
-  // "native" = your local dev machine; "rhel-openssl-3.0.x" = Netlify's
-  // serverless (AWS Lambda) runtime. Without the second target, prod DB
-  // calls fail with "Query engine ... could not be located".
+  // driverAdapters lets Prisma run on Cloudflare's Workers runtime via the
+  // pg driver adapter (see src/lib/prisma.ts). binaryTargets stays set so a
+  // Node/serverless build keeps working during the migration.
+  previewFeatures = ["driverAdapters"]
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
