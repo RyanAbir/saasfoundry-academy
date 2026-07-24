@@ -1,26 +1,210 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+  SaaSFoundry Academy brand theme.
+  Light = "Clean Slate", Dark = "Midnight Violet" (the default).
+  Brand: violet primary, cyan + green accents used in gradients.
+*/
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --radius: 0.75rem;
+
+  /* Clean Slate (light) */
+  --background: #f7f8fc;
+  --foreground: #131726;
+  --card: #ffffff;
+  --card-foreground: #131726;
+  --popover: #ffffff;
+  --popover-foreground: #131726;
+  --primary: #6c5cff;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f4fb;
+  --secondary-foreground: #131726;
+  --muted: #eef1f8;
+  --muted-foreground: #5b6478;
+  --accent: #f1f4fb;
+  --accent-foreground: #131726;
+  --destructive: #e11d48;
+  --border: #e1e6f0;
+  --input: #e1e6f0;
+  --ring: #6c5cff;
+
+  /* Brand extras (used for gradients / highlights) */
+  --brand: #6c5cff;
+  --brand-2: #0891b2;
+  --brand-3: #059669;
+  --brand-accent: #ea580c;
+  --brand-gradient: linear-gradient(120deg, #6c5cff, #0891b2 60%, #059669);
+}
+
+.dark {
+  /* Midnight Violet (dark) */
+  --background: #0a0b12;
+  --foreground: #e8eaf2;
+  --card: #151826;
+  --card-foreground: #e8eaf2;
+  --popover: #151826;
+  --popover-foreground: #e8eaf2;
+  --primary: #6c5cff;
+  --primary-foreground: #ffffff;
+  --secondary: #1b1f30;
+  --secondary-foreground: #e8eaf2;
+  --muted: #11131f;
+  --muted-foreground: #9aa2bd;
+  --accent: #1b1f30;
+  --accent-foreground: #e8eaf2;
+  --destructive: #fb7185;
+  --border: #262b40;
+  --input: #2a3050;
+  --ring: #6c5cff;
+
+  --brand: #6c5cff;
+  --brand-2: #22d3ee;
+  --brand-3: #34d399;
+  --brand-accent: #ff7a59;
+  --brand-gradient: linear-gradient(120deg, #a78bfa, #22d3ee 60%, #34d399);
 }
 
 @theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-brand: var(--brand);
+  --color-brand-2: var(--brand-2);
+  --color-brand-3: var(--brand-3);
+  --color-brand-accent: var(--brand-accent);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  /* Gradient headline text. */
+  .text-gradient {
+    background: var(--brand-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  /* Soft brand glow behind the hero. */
+  .hero-glow {
+    position: relative;
+  }
+  .hero-glow::before {
+    content: "";
+    position: absolute;
+    top: -180px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(900px, 90vw);
+    height: 560px;
+    background: radial-gradient(
+      circle at center,
+      color-mix(in srgb, var(--brand) 28%, transparent),
+      transparent 60%
+    );
+    filter: blur(24px);
+    z-index: 0;
+    pointer-events: none;
+  }
+}
+
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+/* Markdown lesson notes (replaces the typography plugin — self-contained). */
+@layer components {
+  .lesson-content {
+    @apply text-sm leading-relaxed text-foreground/90;
+  }
+  .lesson-content h1 {
+    @apply mt-6 mb-3 text-xl font-semibold text-foreground;
+  }
+  .lesson-content h2 {
+    @apply mt-6 mb-2 text-lg font-semibold text-foreground;
+  }
+  .lesson-content h3 {
+    @apply mt-5 mb-2 text-base font-semibold text-foreground;
+  }
+  .lesson-content p {
+    @apply my-3;
+  }
+  .lesson-content ul {
+    @apply my-3 list-disc pl-5;
+  }
+  .lesson-content ol {
+    @apply my-3 list-decimal pl-5;
+  }
+  .lesson-content li {
+    @apply my-1;
+  }
+  .lesson-content a {
+    @apply text-primary underline underline-offset-2;
+  }
+  .lesson-content strong {
+    @apply font-semibold text-foreground;
+  }
+  .lesson-content code {
+    @apply rounded bg-muted px-1.5 py-0.5 font-mono text-[0.85em];
+  }
+  .lesson-content pre {
+    @apply my-4 overflow-x-auto rounded-lg border bg-muted p-4;
+  }
+  .lesson-content pre code {
+    @apply bg-transparent p-0;
+  }
+  .lesson-content blockquote {
+    @apply my-3 border-l-2 border-border pl-4 text-muted-foreground;
+  }
 }

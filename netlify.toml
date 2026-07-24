@@ -1,0 +1,10 @@
+# Netlify build config for the Next.js App Router app.
+# The official plugin gives SSR, server actions, image optimization, and
+# route handlers (needed later for the SSLCommerz IPN webhook) with no
+# extra wiring. Netlify installs the plugin automatically when it's listed here.
+
+[build]
+  command = "prisma generate && next build"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

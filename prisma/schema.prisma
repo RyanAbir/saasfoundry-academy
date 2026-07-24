@@ -1,0 +1,170 @@
+// SaaSFoundry Academy — Prisma schema
+// Source of truth: DATA-MODEL.md
+// User ──< Purchase >── Course ──< Module ──< Lesson
+//   └──< Progress >──────────────────────────┘
+
+generator client {
+  provider = "prisma-client-js"
+  // "native" = your local dev machine; "rhel-openssl-3.0.x" = Netlify's
+  // serverless (AWS Lambda) runtime. Without the second target, prod DB
+  // calls fail with "Query engine ... could not be located".
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  // Pooled connection (PgBouncer) used by the app at runtime.
+  url = env("DATABASE_URL")
+  // Direct connection used by Prisma Migrate (no pooling).
+  directUrl = env("DIRECT_URL")
+}
+
+// ---------- Enums ----------
+
+enum Role {
+  student
+  admin
+}
+
+enum CourseLevel {
+  beginner
+  career
+  builder
+}
+
+enum VideoProvider {
+  youtube
+  vimeo
+  bunny
+}
+
+enum PurchaseStatus {
+  pending
+  paid
+  failed
+  refunded
+}
+
+enum PaymentProvider {
+  bkash
+  nagad
+  rocket
+  sslcommerz
+  aamarpay
+}
+
+// ---------- Models ----------
+
+/// App-level profile + role. Auth itself is handled by Supabase Auth;
+/// `id` mirrors the Supabase Auth user id.
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+  // Supabase Auth user id. Nullable so pre-auth (manual purchase) users can
+  // exist and get linked on first login. Unique when set.
+  authId    String?  @unique @db.Uuid
+  email     String   @unique
+  name      String?
+  avatarUrl String?
+  role      Role     @default(student)
+  createdAt DateTime @default(now())
+
+  purchases Purchase[]
+  progress  Progress[]
+
+  @@map("users")
+}
+
+/// A sellable "track" (or the All-Access bundle when isBundle = true).
+model Course {
+  id            String      @id @default(uuid()) @db.Uuid
+  slug          String      @unique
+  title         String
+  subtitle      String?
+  description   String?
+  level         CourseLevel
+  priceBdt      Int
+  oldPriceBdt   Int?
+  isBundle      Boolean     @default(false)
+  coverImageUrl String?
+  published     Boolean     @default(false)
+  sortOrder     Int         @default(0)
+  createdAt     DateTime    @default(now())
+
+  modules   Module[]
+  purchases Purchase[]
+
+  @@map("courses")
+}
+
+model Module {
+  id        String @id @default(uuid()) @db.Uuid
+  courseId  String @db.Uuid
+  title     String
+  sortOrder Int    @default(0)
+
+  course  Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons Lesson[]
+
+  @@index([courseId])
+  @@map("modules")
+}
+
+model Lesson {
+  id            String        @id @default(uuid()) @db.Uuid
+  moduleId      String        @db.Uuid
+  title         String
+  slug          String
+  videoProvider VideoProvider @default(youtube)
+  videoId       String?
+  durationSec   Int           @default(0)
+  content       String?
+  isPreview     Boolean       @default(false)
+  sortOrder     Int           @default(0)
+
+  module   Module     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  progress Progress[]
+
+  // Lesson slug is unique within a module.
+  @@unique([moduleId, slug])
+  @@index([moduleId])
+  @@map("lessons")
+}
+
+/// One row per purchase attempt. Marked `paid` only by the IPN webhook.
+model Purchase {
+  id            String          @id @default(uuid()) @db.Uuid
+  userId        String          @db.Uuid
+  courseId      String          @db.Uuid
+  amountBdt     Int
+  status        PurchaseStatus  @default(pending)
+  provider      PaymentProvider @default(bkash)
+  providerTxnId String?         @unique
+  valId         String?
+  method        String?
+  createdAt     DateTime        @default(now())
+  paidAt        DateTime?
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Restrict)
+
+  @@index([userId])
+  @@index([courseId])
+  @@index([status])
+  @@map("purchases")
+}
+
+model Progress {
+  id              String   @id @default(uuid()) @db.Uuid
+  userId          String   @db.Uuid
+  lessonId        String   @db.Uuid
+  completed       Boolean  @default(false)
+  lastPositionSec Int      @default(0)
+  updatedAt       DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@map("progress")
+}
