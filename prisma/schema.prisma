@@ -5,11 +5,12 @@
 
 generator client {
   provider = "prisma-client-js"
-  // driverAdapters lets Prisma run on Cloudflare's Workers runtime via the
-  // pg driver adapter (see src/lib/prisma.ts). binaryTargets stays set so a
-  // Node/serverless build keeps working during the migration.
-  previewFeatures = ["driverAdapters"]
-  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+  // Cloudflare Workers can't run Prisma's native binary query engine. The
+  // `queryCompiler` preview feature produces an ENGINE-LESS client: queries are
+  // compiled in-process and executed over the `pg` driver adapter wired up in
+  // src/lib/prisma.ts — no query-engine binary or WASM file is needed at all.
+  // `driverAdapters` enables the pg adapter. Do NOT set binaryTargets.
+  previewFeatures = ["driverAdapters", "queryCompiler"]
 }
 
 datasource db {
