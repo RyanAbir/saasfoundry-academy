@@ -28,7 +28,15 @@ export async function updateSession(request: NextRequest) {
   );
 
   // Touch the user so an expired token gets refreshed into the cookies.
-  await supabase.auth.getUser();
+  // Wrapped in try/catch: on Cloudflare's edge runtime the network call to
+  // Supabase Auth can occasionally fail, and we don't want a transient hiccup
+  // to crash the whole page — the request can still render, just without
+  // refreshing the session this time.
+  try {
+    await supabase.auth.getUser();
+  } catch {
+    // Ignore transient auth-refresh failures.
+  }
 
   return response;
 }
