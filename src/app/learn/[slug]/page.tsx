@@ -8,7 +8,6 @@ import {
   getCourseWithModules,
   flattenLessons,
   getCompletedLessonIds,
-  getCourseProgress,
   resumeLesson,
 } from "@/lib/lms";
 import { formatBdt } from "@/lib/catalog";
@@ -32,9 +31,15 @@ export default async function CoursePlayerPage({
   if (!course) notFound();
   if (course.isBundle) redirect("/dashboard");
 
-  const access = await hasCourseAccess(user.id, course.id);
   const lessons = flattenLessons(course);
   const preview = lessons.find((l) => l.isPreview);
+
+  // Access check and completed-lessons fetch run together (both need only the
+  // course id), instead of one after another.
+  const [access, completedIds] = await Promise.all([
+    hasCourseAccess(user.id, course.id),
+    getCompletedLessonIds(user.id, course.id),
+  ]);
 
   // Locked — no access. Offer a free preview if one exists.
   if (!access) {
@@ -64,8 +69,14 @@ export default async function CoursePlayerPage({
     );
   }
 
-  const completedIds = await getCompletedLessonIds(user.id, course.id);
-  const progress = await getCourseProgress(user.id, course.id);
+  // Progress derived from data already loaded — no extra count queries.
+  const total = lessons.length;
+  const completed = lessons.filter((l) => completedIds.has(l.id)).length;
+  const progress = {
+    completed,
+    total,
+    percent: total === 0 ? 0 : Math.round((completed / total) * 100),
+  };
   const resume = resumeLesson(lessons, completedIds);
 
   return (

@@ -41,7 +41,11 @@ export default async function LessonPage({
   if (index === -1) notFound();
 
   const lesson = lessons[index];
-  const access = await hasCourseAccess(user.id, course.id);
+  // Access check and completed-lessons fetch run together.
+  const [access, completedIds] = await Promise.all([
+    hasCourseAccess(user.id, course.id),
+    getCompletedLessonIds(user.id, course.id),
+  ]);
 
   // Non-preview lessons need a paid purchase.
   if (!lesson.isPreview && !access) {
@@ -61,7 +65,6 @@ export default async function LessonPage({
     );
   }
 
-  const completedIds = await getCompletedLessonIds(user.id, course.id);
   const isDone = completedIds.has(lesson.id);
   const parentModule = moduleOfLesson(course, lesson.id);
   const prev = index > 0 ? lessons[index - 1] : null;
