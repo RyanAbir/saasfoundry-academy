@@ -19,32 +19,41 @@ export async function getAuthUser() {
  * without ever changing a primary key.
  */
 export async function getCurrentUser() {
-  const authUser = await getAuthUser();
-  if (!authUser?.email) return null;
+  try {
+    const authUser = await getAuthUser();
+    if (!authUser?.email) return null;
 
-  const email = authUser.email.toLowerCase();
-  const authId = authUser.id;
-  const name = (authUser.user_metadata?.name as string | undefined) ?? null;
+    const email = authUser.email.toLowerCase();
+    const authId = authUser.id;
+    const name = (authUser.user_metadata?.name as string | undefined) ?? null;
 
-  const existing = await prisma.user.findFirst({
-    where: { OR: [{ authId }, { email }] },
-  });
+    const existing = await prisma.user.findFirst({
+      where: { OR: [{ authId }, { email }] },
+    });
 
-  if (existing) {
-    if (existing.authId !== authId) {
-      // Pre-auth user found by email — attach the auth id now.
-      return prisma.user.update({
-        where: { id: existing.id },
-        data: { authId, name: existing.name ?? name },
-      });
+    if (existing) {
+      if (existing.authId !== authId) {
+        // Pre-auth user found by email — attach the auth id now.
+        return prisma.user.update({
+          where: { id: existing.id },
+          data: { authId, name: existing.name ?? name },
+        });
+      }
+      return existing;
     }
-    return existing;
-  }
 
-  const created = await prisma.user.create({ data: { authId, email, name } });
-  // Best-effort welcome email on first sign-in (no-ops if Resend isn't set).
-  await sendWelcomeEmail({ to: created.email, name: created.name ?? "there" });
-  return created;
+    const created = await prisma.user.create({ data: { authId, email, name } });
+    // Best-effort welcome email on first sign-in (no-ops if Resend isn't set).
+    await sendWelcomeEmail({ to: created.email, name: created.name ?? "there" });
+    return created;
+  } catch (err) {
+    // Surface the real database/auth error in Cloudflare's logs.
+    console.error(
+      "[getCurrentUser] error:",
+      err instanceof Error ? `${err.name}: ${err.message}\n${err.stack ?? ""}` : String(err)
+    );
+    throw err;
+  }
 }
 
 export async function requireUser() {

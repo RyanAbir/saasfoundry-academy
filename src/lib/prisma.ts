@@ -16,6 +16,9 @@ function createPrismaClient() {
     connectionString: process.env.DATABASE_URL,
     max: 1,
     maxUses: 1,
+    // Supabase requires TLS. Encrypt the connection but skip cert-chain
+    // verification (the Workers runtime can't verify it the usual way).
+    ssl: { rejectUnauthorized: false },
   });
   const adapter = new PrismaPg(pool);
   return new PrismaClient({ adapter });
