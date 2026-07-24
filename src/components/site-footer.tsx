@@ -29,6 +29,7 @@ export function SiteFooter() {
               <li key={t.slug}>
                 <Link
                   href={`/courses/${t.slug}`}
+                  prefetch={false}
                   className="transition-colors hover:text-foreground"
                 >
                   {t.title}
@@ -42,12 +43,12 @@ export function SiteFooter() {
           <h3 className="text-sm font-semibold">Explore</h3>
           <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
             <li>
-              <Link href="/pricing" className="transition-colors hover:text-foreground">
+              <Link href="/pricing" prefetch={false} className="transition-colors hover:text-foreground">
                 Pricing
               </Link>
             </li>
             <li>
-              <Link href="/faq" className="transition-colors hover:text-foreground">
+              <Link href="/faq" prefetch={false} className="transition-colors hover:text-foreground">
                 FAQ
               </Link>
             </li>
@@ -58,17 +59,17 @@ export function SiteFooter() {
           <h3 className="text-sm font-semibold">Legal</h3>
           <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
             <li>
-              <Link href="/terms" className="transition-colors hover:text-foreground">
+              <Link href="/terms" prefetch={false} className="transition-colors hover:text-foreground">
                 Terms
               </Link>
             </li>
             <li>
-              <Link href="/privacy" className="transition-colors hover:text-foreground">
+              <Link href="/privacy" prefetch={false} className="transition-colors hover:text-foreground">
                 Privacy
               </Link>
             </li>
             <li>
-              <Link href="/refund" className="transition-colors hover:text-foreground">
+              <Link href="/refund" prefetch={false} className="transition-colors hover:text-foreground">
                 Refunds
               </Link>
             </li>
