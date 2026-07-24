@@ -4,18 +4,18 @@
 //   └──< Progress >──────────────────────────┘
 
 generator client {
-  provider = "prisma-client-js"
-  // Cloudflare Workers can't run Prisma's native binary query engine. The
-  // `queryCompiler` preview feature produces an ENGINE-LESS client: queries are
-  // compiled in-process and executed over the `pg` driver adapter wired up in
-  // src/lib/prisma.ts — no query-engine binary or WASM file is needed at all.
-  // `driverAdapters` enables the pg adapter. Do NOT set binaryTargets.
-  //
-  // `output` is REQUIRED for the engine-less path: without it the generator
-  // falls back to the classic node_modules/.prisma/client codepath, which still
-  // emits a binary-engine client (and ignores queryCompiler).
-  previewFeatures = ["driverAdapters", "queryCompiler"]
-  output          = "../src/generated/prisma"
+  // The NEW `prisma-client` generator (not the legacy `prisma-client-js`).
+  // With `runtime = "workerd"` it emits a client that uses Prisma's WASM query
+  // engine (internal/query_engine_bg.wasm + @prisma/client/runtime/
+  // wasm-engine-edge) instead of the native `.so.node` engine. Cloudflare
+  // Workers can load the .wasm but NOT the native binary — that native binary
+  // was the cause of the "could not locate the Query Engine" 500s. Queries run
+  // over the `pg` driver adapter wired up in src/lib/prisma.ts.
+  // Import PrismaClient from the "/client" subpath of `output`.
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  runtime      = "workerd"
+  moduleFormat = "esm"
 }
 
 datasource db {
