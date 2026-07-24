@@ -8,7 +8,6 @@ import {
   getCourseWithModules,
   flattenLessons,
   getCompletedLessonIds,
-  getCourseProgress,
   resumeLesson,
 } from "@/lib/lms";
 import { Button } from "@/components/ui/button";
@@ -22,38 +21,42 @@ export const metadata: Metadata = {
 
 export default async function DashboardPage() {
   const user = await requireUser();
-  const courses = await getOwnedCourses(user.id);
 
-  // Build a progress + resume card for each owned course.
-  const cards: {
-    slug: string;
-    title: string;
-    percent: number;
-    completed: number;
-    total: number;
-    resumeSlug: string | null;
-  }[] = [];
-  for (const course of courses) {
-    const progress = await getCourseProgress(user.id, course.id);
-    const full = await getCourseWithModules(course.slug);
-    const lessons = full ? flattenLessons(full) : [];
-    const completedIds = await getCompletedLessonIds(user.id, course.id);
-    const resume = resumeLesson(lessons, completedIds);
-    cards.push({
-      slug: course.slug,
-      title: course.title,
-      percent: progress.percent,
-      completed: progress.completed,
-      total: progress.total,
-      resumeSlug: resume?.slug ?? null,
-    });
-  }
+  // Owned courses and pending purchases are independent — fetch them together
+  // instead of one after another.
+  const [courses, pending] = await Promise.all([
+    getOwnedCourses(user.id),
+    prisma.purchase.findMany({
+      where: { userId: user.id, status: "pending" },
+      include: { course: true },
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
 
-  const pending = await prisma.purchase.findMany({
-    where: { userId: user.id, status: "pending" },
-    include: { course: true },
-    orderBy: { createdAt: "desc" },
-  });
+  // Build each course card in parallel. Within a card the two remaining
+  // queries run together, and progress is derived from data we already have
+  // (no extra count round-trips to the database in Mumbai).
+  const cards = await Promise.all(
+    courses.map(async (course: (typeof courses)[number]) => {
+      const [full, completedIds] = await Promise.all([
+        getCourseWithModules(course.slug),
+        getCompletedLessonIds(user.id, course.id),
+      ]);
+      const lessons = full ? flattenLessons(full) : [];
+      const total = lessons.length;
+      const completed = lessons.filter((l) => completedIds.has(l.id)).length;
+      const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
+      const resume = resumeLesson(lessons, completedIds);
+      return {
+        slug: course.slug,
+        title: course.title,
+        percent,
+        completed,
+        total,
+        resumeSlug: resume?.slug ?? null,
+      };
+    })
+  );
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
