@@ -10,7 +10,12 @@ generator client {
   // compiled in-process and executed over the `pg` driver adapter wired up in
   // src/lib/prisma.ts — no query-engine binary or WASM file is needed at all.
   // `driverAdapters` enables the pg adapter. Do NOT set binaryTargets.
+  //
+  // `output` is REQUIRED for the engine-less path: without it the generator
+  // falls back to the classic node_modules/.prisma/client codepath, which still
+  // emits a binary-engine client (and ignores queryCompiler).
   previewFeatures = ["driverAdapters", "queryCompiler"]
+  output          = "../src/generated/prisma"
 }
 
 datasource db {

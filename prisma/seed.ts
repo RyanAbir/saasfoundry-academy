@@ -1,4 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "../src/generated/prisma";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
 
 import { allProducts, tracks } from "../src/lib/catalog";
 
@@ -10,7 +12,10 @@ import { allProducts, tracks } from "../src/lib/catalog";
 // player visibly works. Swap `videoId` on each Lesson for your real unlisted
 // YouTube/Vimeo IDs (or re-point to Bunny) — no schema change needed.
 
-const prisma = new PrismaClient();
+// The engine-less (queryCompiler) client requires a driver adapter everywhere,
+// including this Node-run seed script.
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
 
 const DEMO_VIDEO_ID = "aqz-KE-bpKQ";
 
