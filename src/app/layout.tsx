@@ -25,6 +25,8 @@ export const metadata: Metadata = {
     template: `%s · ${siteConfig.name}`,
   },
   description: siteConfig.description,
+  // The card people see when a link is shared on Facebook, WhatsApp or X.
+  // Without an image these share as a bare grey box, which kills click-through.
   openGraph: {
     title: siteConfig.name,
     description: siteConfig.description,
@@ -32,11 +34,20 @@ export const metadata: Metadata = {
     siteName: siteConfig.name,
     type: "website",
     locale: "en_US",
+    images: [
+      {
+        url: "/og.png",
+        width: 1200,
+        height: 630,
+        alt: `${siteConfig.name} — ${siteConfig.tagline}`,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: siteConfig.name,
     description: siteConfig.description,
+    images: ["/og.png"],
   },
 };
 

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Menu, X } from "lucide-react";
 
 import { siteConfig } from "@/lib/catalog";
@@ -34,12 +35,16 @@ export function SiteHeader() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         <Link href="/" prefetch={false} className="flex items-center gap-2 font-semibold">
-          <span
-            className="grid size-8 place-items-center rounded-md text-sm font-bold text-white"
-            style={{ background: "var(--brand-gradient)" }}
-          >
-            SF
-          </span>
+          {/* The mark is a transparent PNG so it sits correctly on both themes.
+              priority: it's above the fold on every page. */}
+          <Image
+            src="/logo-mark.png"
+            alt=""
+            width={32}
+            height={32}
+            priority
+            className="size-8 object-contain"
+          />
           <span className="hidden sm:inline">{siteConfig.name}</span>
           <span className="sm:hidden">{siteConfig.shortName}</span>
         </Link>
