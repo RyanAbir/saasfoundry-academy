@@ -57,7 +57,8 @@ suggested, but they are a commitment you are making, not a technical default.**
 **Fixed the admin lockout.** `requireAdmin()` demands `role === "admin"` and nothing in the
 codebase ever set that, so `/admin` — the only way to confirm a manual payment — was
 unreachable without hand-editing the database. `lib/auth.ts` now promotes any email listed in
-`ADMIN_EMAILS` on sign-in. Set to `sm.rakib102@gmail.com` in `.env`; change it if you'll
+`ADMIN_EMAILS` on sign-in. Set to `info.ryanabir@gmail.com` in both `.env` and Netlify; the
+account you sign in with must appear in that list or `/admin` bounces you. Change it if you'll
 administer from a different account. The dead `ADMIN_TOKEN` was retired from `.env.example`.
 
 **Closed the manual-purchase account gap.** A buyer paying manually was never told they still
