@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 import { siteConfig, tracks } from "@/lib/catalog";
 
@@ -8,12 +9,13 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-5">
         <div className="md:col-span-2">
           <div className="flex items-center gap-2 font-semibold">
-            <span
-              className="grid size-8 place-items-center rounded-md text-sm font-bold text-white"
-              style={{ background: "var(--brand-gradient)" }}
-            >
-              SF
-            </span>
+            <Image
+              src="/logo-mark.png"
+              alt=""
+              width={32}
+              height={32}
+              className="size-8 object-contain"
+            />
             {siteConfig.name}
           </div>
           <p className="mt-3 max-w-sm text-sm text-muted-foreground">
