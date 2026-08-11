@@ -7,12 +7,21 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
+  /*
+   * Only run where a session actually matters. updateSession() calls
+   * supabase.auth.getUser(), which is a network round trip to Supabase — doing
+   * that on the marketing pages costs every visitor hundreds of milliseconds
+   * for a session they don't have. Tokens still refresh the moment someone
+   * touches an authenticated route.
+   */
   matcher: [
-    /*
-     * Run on all paths except static assets and images:
-     * - _next/static, _next/image
-     * - favicon and common image extensions
-     */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/dashboard/:path*",
+    "/learn/:path*",
+    "/admin/:path*",
+    "/enroll/:path*",
+    "/checkout/:path*",
+    "/login",
+    "/signup",
+    "/auth/:path*",
   ],
 };

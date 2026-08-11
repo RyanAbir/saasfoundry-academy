@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
@@ -27,21 +28,27 @@ async function ensureAdminRole(user: UserRow): Promise<UserRow> {
   });
 }
 
-/** The Supabase Auth user for the current session (or null). */
-export async function getAuthUser() {
+/**
+ * The Supabase Auth user for the current session (or null).
+ *
+ * Wrapped in React's cache(): auth.getUser() is a network call to Supabase,
+ * and a single render can ask for the user several times (layout, page, an
+ * access check). cache() dedupes those to one call per request.
+ */
+export const getAuthUser = cache(async () => {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   return user;
-}
+});
 
 /**
  * The app-level User row for the current session. Creates it on first login,
  * and links a pre-auth (manual-purchase) user to the auth account by email —
  * without ever changing a primary key.
  */
-export async function getCurrentUser() {
+export const getCurrentUser = cache(async () => {
   const authUser = await getAuthUser();
   if (!authUser?.email) return null;
 
@@ -69,7 +76,7 @@ export async function getCurrentUser() {
   // Best-effort welcome email on first sign-in (no-ops if Resend isn't set).
   await sendWelcomeEmail({ to: created.email, name: created.name ?? "there" });
   return ensureAdminRole(created);
-}
+});
 
 export async function requireUser() {
   const user = await getCurrentUser();

@@ -4,12 +4,6 @@ import { ArrowRight, BookOpen } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
 import { requireUser, getOwnedCourses } from "@/lib/auth";
-import {
-  getCourseWithModules,
-  flattenLessons,
-  getCompletedLessonIds,
-  resumeLesson,
-} from "@/lib/lms";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,30 +27,58 @@ export default async function DashboardPage() {
     }),
   ]);
 
-  // Build each course card in parallel. Within a card the two remaining
-  // queries run together, and progress is derived from data we already have
-  // (no extra count round-trips to the database in Mumbai).
-  const cards = await Promise.all(
-    courses.map(async (course: (typeof courses)[number]) => {
-      const [full, completedIds] = await Promise.all([
-        getCourseWithModules(course.slug),
-        getCompletedLessonIds(user.id, course.id),
-      ]);
-      const lessons = full ? flattenLessons(full) : [];
-      const total = lessons.length;
-      const completed = lessons.filter((l) => completedIds.has(l.id)).length;
-      const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
-      const resume = resumeLesson(lessons, completedIds);
-      return {
-        slug: course.slug,
-        title: course.title,
-        percent,
-        completed,
-        total,
-        resumeSlug: resume?.slug ?? null,
-      };
-    })
+  // Two queries for the whole page, not two per owned course. Each database
+  // round trip is expensive, so fetch every lesson and every completed-progress
+  // row for the owned courses at once and do the grouping in memory.
+  const courseIds = courses.map((c: (typeof courses)[number]) => c.id);
+  const [lessonRows, doneRows] = await Promise.all([
+    prisma.lesson.findMany({
+      where: { module: { courseId: { in: courseIds } } },
+      select: {
+        id: true,
+        slug: true,
+        sortOrder: true,
+        module: { select: { courseId: true, sortOrder: true } },
+      },
+    }),
+    prisma.progress.findMany({
+      where: {
+        userId: user.id,
+        completed: true,
+        lesson: { module: { courseId: { in: courseIds } } },
+      },
+      select: { lessonId: true },
+    }),
+  ]);
+
+  const completedIds = new Set(
+    doneRows.map((r: (typeof doneRows)[number]) => r.lessonId)
   );
+  const byCourse = new Map<string, typeof lessonRows>();
+  for (const lesson of lessonRows) {
+    const list = byCourse.get(lesson.module.courseId) ?? [];
+    list.push(lesson);
+    byCourse.set(lesson.module.courseId, list);
+  }
+
+  const cards = courses.map((course: (typeof courses)[number]) => {
+    // Play order: by module, then by lesson within the module.
+    const lessons = (byCourse.get(course.id) ?? []).sort(
+      (a, b) =>
+        a.module.sortOrder - b.module.sortOrder || a.sortOrder - b.sortOrder
+    );
+    const total = lessons.length;
+    const completed = lessons.filter((l) => completedIds.has(l.id)).length;
+    const resume = lessons.find((l) => !completedIds.has(l.id)) ?? lessons[0];
+    return {
+      slug: course.slug,
+      title: course.title,
+      percent: total === 0 ? 0 : Math.round((completed / total) * 100),
+      completed,
+      total,
+      resumeSlug: resume?.slug ?? null,
+    };
+  });
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
