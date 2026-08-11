@@ -6,6 +6,7 @@ import { getTrack, formatBdt } from "@/lib/catalog";
 import { getManualMethods } from "@/lib/payments/manual";
 import { getAuthUser } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/submit-button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { submitManualPayment } from "./actions";
@@ -183,9 +184,9 @@ export default async function EnrollPage({
                   </span>
                 </div>
 
-                <Button type="submit" size="lg" className="mt-2">
+                <SubmitButton size="lg" className="mt-2" pendingText="Submitting…">
                   Submit &amp; get access
-                </Button>
+                </SubmitButton>
                 <p className="text-center text-xs text-muted-foreground">
                   We verify your payment and email your access — usually within a
                   few hours.

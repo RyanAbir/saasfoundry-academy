@@ -14,6 +14,7 @@ import {
 } from "@/lib/lms";
 import { formatBdt } from "@/lib/catalog";
 import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/submit-button";
 import { Badge } from "@/components/ui/badge";
 import { VideoEmbed } from "@/components/video-embed";
 import { CourseOutline } from "@/components/course-outline";
@@ -100,7 +101,10 @@ export default async function LessonPage({
               <input type="hidden" name="lessonId" value={lesson.id} />
               <input type="hidden" name="courseSlug" value={course.slug} />
               <input type="hidden" name="completed" value={String(isDone)} />
-              <Button type="submit" variant={isDone ? "outline" : "default"}>
+              <SubmitButton
+                variant={isDone ? "outline" : "default"}
+                pendingText="Saving…"
+              >
                 {isDone ? (
                   <>
                     <CheckCircle2 className="size-4 text-brand-3" /> Completed
@@ -108,7 +112,7 @@ export default async function LessonPage({
                 ) : (
                   "Mark as complete"
                 )}
-              </Button>
+              </SubmitButton>
             </form>
           ) : (
             <Badge variant="secondary">Free preview</Badge>

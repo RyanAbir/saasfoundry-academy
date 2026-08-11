@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { formatBdt } from "@/lib/catalog";
 import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/submit-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { confirmPayment, rejectPayment } from "./actions";
@@ -94,11 +95,11 @@ export default async function AdminPage() {
                 <div className="flex gap-2">
                   <form action={confirmPayment}>
                     <input type="hidden" name="purchaseId" value={p.id} />
-                    <Button type="submit" size="sm">Confirm</Button>
+                    <SubmitButton size="sm" pendingText="Confirming…">Confirm</SubmitButton>
                   </form>
                   <form action={rejectPayment}>
                     <input type="hidden" name="purchaseId" value={p.id} />
-                    <Button type="submit" size="sm" variant="outline">Reject</Button>
+                    <SubmitButton size="sm" variant="outline" pendingText="Rejecting…">Reject</SubmitButton>
                   </form>
                 </div>
               </CardContent>

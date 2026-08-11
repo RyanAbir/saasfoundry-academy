@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/submit-button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { login, loginWithGoogle } from "@/app/auth/actions";
@@ -37,9 +38,9 @@ export default async function LoginPage({
           )}
 
           <form action={loginWithGoogle}>
-            <Button type="submit" variant="outline" className="w-full">
+            <SubmitButton variant="outline" className="w-full" pendingText="Redirecting to Google…">
               Continue with Google
-            </Button>
+            </SubmitButton>
           </form>
 
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
@@ -58,7 +59,7 @@ export default async function LoginPage({
               <label htmlFor="password" className="text-sm font-medium">Password</label>
               <Input id="password" name="password" type="password" placeholder="••••••••" required />
             </div>
-            <Button type="submit" className="mt-1">Log in</Button>
+            <SubmitButton className="mt-1" pendingText="Signing in…">Log in</SubmitButton>
           </form>
 
           <p className="text-center text-sm text-muted-foreground">

@@ -9,6 +9,7 @@ import { siteConfig } from "@/lib/catalog";
 import { createClient } from "@/lib/supabase/client";
 import { logout } from "@/app/auth/actions";
 import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/submit-button";
 import { ModeToggle } from "@/components/mode-toggle";
 import { cn } from "@/lib/utils";
 
@@ -70,7 +71,7 @@ export function SiteHeader() {
                 <Link href="/dashboard" prefetch={false}>Dashboard</Link>
               </Button>
               <form action={logout} className="hidden sm:block">
-                <Button type="submit" variant="outline">Log out</Button>
+                <SubmitButton variant="outline" pendingText="Signing out…">Log out</SubmitButton>
               </form>
             </>
           ) : (
@@ -121,7 +122,7 @@ export function SiteHeader() {
                 Dashboard
               </Link>
               <form action={logout} className="mt-2">
-                <Button type="submit" variant="outline" className="w-full">Log out</Button>
+                <SubmitButton variant="outline" className="w-full" pendingText="Signing out…">Log out</SubmitButton>
               </form>
             </>
           ) : (
