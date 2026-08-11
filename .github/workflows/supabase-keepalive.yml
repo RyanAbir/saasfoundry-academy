@@ -1,34 +1,40 @@
 name: Supabase keep-alive
 
-# The free Supabase project pauses after 7 days of inactivity (TECH-STACK.md §3).
-# This workflow pings the REST API on a schedule so the project stays awake
-# during the quiet early days. Remove it once the app has real daily traffic.
+# The free Supabase project pauses after 7 days of inactivity (TECH-STACK.md §3),
+# and a paused project means a dead site: login, dashboard, enrollment and /admin
+# all fail while the marketing pages keep rendering, so it fails silently.
+#
+# This pings /api/warm, which runs `SELECT 1` through Prisma — a real query on a
+# real connection. The previous version curled the Supabase REST root and treated
+# any response, including a 401, as proof of life; a 401 is rejected at the edge
+# and never reaches the database, so it passed while the project idled out.
+#
+# Runs daily rather than every 3 days: the window is 7 days, and a couple of
+# consecutive failures shouldn't be enough to lose the project.
 
 on:
   schedule:
-    # Every 3 days at 06:00 UTC (well inside the 7-day window).
-    - cron: "0 6 */3 * *"
+    - cron: "0 6 * * *" # every day at 06:00 UTC
   workflow_dispatch: {} # allow manual runs from the Actions tab
 
 jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping Supabase REST endpoint
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      - name: Ping the app's keep-warm endpoint
         run: |
-          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
-            echo "Missing SUPABASE_URL or SUPABASE_ANON_KEY repo secrets."
+          URL="https://www.saasfoundry.space/api/warm"
+          body=$(curl -sS --max-time 30 -w "\n%{http_code}" "$URL") || {
+            echo "Request failed outright."; exit 1;
+          }
+          code=$(echo "$body" | tail -n1)
+          json=$(echo "$body" | sed '$d')
+          echo "HTTP $code"
+          echo "$json"
+          # The route returns {"ok":true,...} only after a successful DB query,
+          # so anything else means the database did not actually respond.
+          if [ "$code" != "200" ] || ! echo "$json" | grep -q '"ok":true'; then
+            echo "Keep-alive did not reach the database — the project may be paused."
             exit 1
           fi
-          code=$(curl -s -o /dev/null -w "%{http_code}" \
-            -H "apikey: $SUPABASE_ANON_KEY" \
-            "$SUPABASE_URL/rest/v1/")
-          echo "Supabase responded with HTTP $code"
-          # Any HTTP response (even 401/404) proves the project is awake.
-          if [ "$code" = "000" ]; then
-            echo "No response from Supabase."
-            exit 1
-          fi
+          echo "Database responded. Project is awake."
