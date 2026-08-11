@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { LegalDoc } from "@/components/legal-doc";
+import { siteConfig } from "@/lib/catalog";
 
 export const metadata: Metadata = {
   title: "Refund Policy",
@@ -12,11 +13,11 @@ We want you to be happy with your purchase. This policy explains when and how yo
 
 ## Satisfaction guarantee
 
-You can request a full refund within **[7] days** of purchase if the course isn't right for you — **provided you have completed no more than [20%] of the course**. This window and threshold protect against buying, consuming the material, and then asking for money back.
+You can request a full refund within **7 days** of purchase if the course isn't right for you — **provided you have completed no more than 20% of the course**. This window and threshold protect against buying, consuming the material, and then asking for money back.
 
 ## How to request
 
-Email us at [contact email] from the address on your account, with your name and the course you bought. We'll confirm and process eligible refunds within **[7–10] business days** back to your original payment method (bKash/Nagad/card). Processing times on the payment provider's side may add a few days.
+Email us at ${siteConfig.supportEmail} from the address on your account, with your name and the course you bought. We'll confirm and process eligible refunds within **7–10 business days** back to your original payment method (bKash/Nagad/card). Processing times on the payment provider's side may add a few days.
 
 ## What isn't refundable
 
@@ -30,7 +31,7 @@ For the All-Access bundle, the same window applies from the date of purchase, ba
 
 ## Questions
 
-Not sure if you qualify? Just ask at [contact email] — we'll help.
+Not sure if you qualify? Just ask at ${siteConfig.supportEmail} — we'll help.
 `;
 
 export default function RefundPage() {

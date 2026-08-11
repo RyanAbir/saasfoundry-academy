@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { LegalDoc } from "@/components/legal-doc";
+import { siteConfig } from "@/lib/catalog";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 const CONTENT = `
-Welcome to SaaSFoundry Academy ("we", "us", "our"), operated by [Your legal/business name] in Bangladesh. By creating an account or purchasing a course, you agree to these Terms.
+Welcome to SaaSFoundry Academy ("we", "us", "our"), operated by ${siteConfig.legalName} in Bangladesh. By creating an account or purchasing a course, you agree to these Terms.
 
 ## 1. Accounts
 
@@ -48,7 +49,7 @@ We may update these Terms; material changes will be posted here with a new "last
 
 ## 10. Governing law & contact
 
-These Terms are governed by the laws of Bangladesh. Questions? Contact us at [contact email].
+These Terms are governed by the laws of Bangladesh. Questions? Contact us at ${siteConfig.supportEmail}.
 `;
 
 export default function TermsPage() {

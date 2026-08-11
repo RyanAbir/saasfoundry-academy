@@ -20,7 +20,7 @@ export default async function PendingPage({
   const purchase = ref
     ? await prisma.purchase.findUnique({
         where: { id: ref },
-        include: { course: true },
+        include: { course: true, user: true },
       })
     : null;
 
@@ -58,6 +58,26 @@ export default async function PendingPage({
           . We&apos;ll verify your transaction and email your access — usually
           within a few hours.
         </p>
+      )}
+
+      {!confirmed && purchase && (
+        <div className="mt-8 w-full rounded-lg border border-primary/30 bg-primary/5 p-4 text-left">
+          <p className="text-sm font-semibold">One more step — create your account</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Your access is tied to{" "}
+            <span className="font-medium text-foreground">{purchase.user.email}</span>.
+            Sign up with that exact email and your course appears the moment we
+            confirm your payment. If you already have an account, just sign in.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button asChild size="sm">
+              <Link href="/signup">Create my account</Link>
+            </Button>
+            <Button asChild size="sm" variant="outline">
+              <Link href="/login">I already have one</Link>
+            </Button>
+          </div>
+        </div>
       )}
 
       <div className="mt-8 flex gap-3">

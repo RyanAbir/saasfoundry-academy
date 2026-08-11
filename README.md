@@ -8,11 +8,15 @@ at $0 fixed monthly cost on free tiers.
 Supabase (Postgres/Auth/Storage) · SSLCommerz · Resend · Netlify.
 
 Planning docs (source of truth) live alongside this app: `TECH-STACK.md`,
-`PRD.md`, `DATA-MODEL.md`, `BUILD-ORDER.md`.
+`PRD.md`, `DATA-MODEL.md`, `BUILD-ORDER.md`, plus `LAUNCH-PLAN.md` for what's
+left before launch and `CONTENT.md` for how lessons get authored.
 
 ## Status
 
-**Slice 0 — Project setup ✓** (this scaffold). Next up: Slice 1 — Marketing site.
+**Slices 0–5 complete** — marketing site, auth, payments (manual bKash/Nagad,
+gateway adapters written), access control, LMS, and launch polish are all in.
+What remains is course content, gateway onboarding, and deployment; see
+`LAUNCH-PLAN.md`.
 
 ## Getting started (local)
 
@@ -49,12 +53,28 @@ The free project pauses after 7 days of inactivity — the
 ## Project layout
 
 ```
-src/app/              routes (App Router)
+src/app/               routes (App Router)
 src/components/ui/     shadcn/ui components
 src/lib/prisma.ts      Prisma client singleton
-src/lib/payments/       PaymentProvider interface + sslcommerz.ts (gateway-agnostic)
-prisma/schema.prisma  data model (see DATA-MODEL.md)
+src/lib/payments/      PaymentProvider interface + gateway adapters
+prisma/schema.prisma   data model (see DATA-MODEL.md)
+prisma/seed.ts         the products you sell (courses, prices)
+scripts/sync-content.ts  modules + lessons from content/ (see CONTENT.md)
+content/               lesson markdown, one file per lesson
 ```
+
+## Authoring lessons
+
+Courses come from the seed; everything inside them comes from `content/`.
+
+```bash
+npm run db:seed                       # products: courses, prices (run once)
+npm run content:sync -- --dry-run     # preview lesson changes
+npm run content:sync                  # apply them
+```
+
+The sync upserts by slug and never touches Progress, so it's safe to re-run
+after every recording session. Full details in `CONTENT.md`.
 
 Payments sit behind a `PaymentProvider` interface so international gateways can
 be added later without touching the rest of the app.
@@ -69,6 +89,8 @@ be added later without touching the rest of the app.
 | `npm run db:push` | Push schema to the DB (no migration history) |
 | `npm run db:migrate` | Create + apply a migration |
 | `npm run db:studio` | Open Prisma Studio |
+| `npm run db:seed` | Seed courses/prices from the catalog |
+| `npm run content:sync` | Sync modules + lessons from `content/` |
 
 ## Deploy (Netlify)
 

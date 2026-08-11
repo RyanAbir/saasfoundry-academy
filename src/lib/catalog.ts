@@ -16,7 +16,16 @@ export const siteConfig = {
   tagline: "From learning syntax to getting paid to build.",
   description:
     "A paid course platform that takes developers in Bangladesh from zero to hired to earning — full-stack and AI-era skills, with local payments in BDT.",
-  url: "https://academy.saasfoundry.xyz",
+  // Drives canonical links, Open Graph, and the buttons in transactional
+  // emails. Reads NEXT_PUBLIC_APP_URL so local dev points at localhost and
+  // production points at the live host — set it in Netlify's environment.
+  url: process.env.NEXT_PUBLIC_APP_URL ?? "https://www.saasfoundry.space",
+  // SET BEFORE LAUNCH. `legalName` must match the entity on your trade
+  // license — it appears in Terms/Privacy and is what SSLCommerz onboarding
+  // checks against. `supportEmail` is the address printed on the legal pages
+  // and used for refund requests; make sure it actually receives mail.
+  legalName: "SaaSFoundry Academy",
+  supportEmail: "support@saasfoundry.space",
   nav: [
     { title: "Tracks", href: "/#tracks" },
     { title: "Pricing", href: "/pricing" },
@@ -206,10 +215,11 @@ export const techStack = [
   "AI / LLMs",
 ];
 
-// ⚠️ PLACEHOLDER social proof from the landing-page mockup. Replace the stats
-// and testimonials with real numbers and real student wins before launch.
+// Every claim below is one you make to someone before they pay you, so it has
+// to be true. The fabricated "4.9/5 learner rating" was removed from
+// heroStats; add a real rating back only once you have real reviews.
 export const heroStats = [
-  { label: "learner rating", value: "4.9/5" },
+  { label: "in BDT — bKash & Nagad", value: "Pay locally" },
   { label: "access & updates", value: "Lifetime" },
   { label: "not toy demos", value: "Real projects" },
 ];
@@ -221,29 +231,12 @@ export interface Testimonial {
   initials: string;
 }
 
-export const testimonials: Testimonial[] = [
-  {
-    quote:
-      "I went from copy-pasting tutorials to shipping a full-stack app I actually understand. Landed my first junior role three months after finishing Career Launch.",
-    name: "Ayesha R.",
-    role: "Junior Developer",
-    initials: "AR",
-  },
-  {
-    quote:
-      "After a layoff I thought I was too late for the AI shift. The reskilling track made me market-fit again — I'm now billing clients as a freelancer.",
-    name: "Marcus K.",
-    role: "Freelance Full-Stack Dev",
-    initials: "MK",
-  },
-  {
-    quote:
-      "The Builder's Program is the part nobody teaches. I launched a small SaaS and closed my first two agency clients using the exact outreach scripts.",
-    name: "Sana D.",
-    role: "Founder, micro-SaaS",
-    initials: "SD",
-  },
-];
+// ⚠️ EMPTY ON PURPOSE. The three testimonials that used to live here were
+// invented for the landing-page mockup — "Ayesha R.", "Marcus K." and
+// "Sana D." are not real students, and publishing them while charging money
+// is a false-advertising risk. Add entries back only as real students give
+// permission; the homepage hides this whole section while the array is empty.
+export const testimonials: Testimonial[] = [];
 
 export interface Faq {
   q: string;
@@ -253,7 +246,7 @@ export interface Faq {
 export const faqs: Faq[] = [
   {
     q: "How do I pay? Which methods are supported?",
-    a: "You can pay in BDT with bKash, Nagad, Rocket, card, or bank — all through a secure local checkout. Your access is granted automatically as soon as your payment is confirmed.",
+    a: "You can pay in BDT with bKash or Nagad. You send the amount to our wallet number and submit your transaction ID; we verify it and unlock your access — usually within a few hours. (Card, Rocket, and bank payments arrive when our payment gateway goes live.)",
   },
   {
     q: "Do I get lifetime access?",
@@ -269,7 +262,7 @@ export const faqs: Faq[] = [
   },
   {
     q: "Is there a refund policy?",
-    a: "We stand behind the courses with a satisfaction guarantee. If a track isn't right for you, reach out and we'll make it right. (Final refund terms are being finalized.)",
+    a: "Yes. You can request a full refund within 7 days of purchase if you have completed no more than 20% of the course. See the Refund Policy for the full terms and how to request one.",
   },
   {
     q: "Are the courses in Bangla or English?",

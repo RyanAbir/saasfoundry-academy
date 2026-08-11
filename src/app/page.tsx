@@ -318,7 +318,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* Testimonials — hidden entirely until there are real ones to show
+          (catalog.ts ships an empty array on purpose). */}
+      {testimonials.length > 0 && (
       <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
         <div className="mx-auto max-w-2xl text-center">
           <Badge variant="secondary" className="mb-4">Results</Badge>
@@ -353,6 +355,7 @@ export default function Home() {
           ))}
         </div>
       </section>
+      )}
 
       {/* CTA band */}
       <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
@@ -361,8 +364,8 @@ export default function Home() {
             Your future in tech starts with one decision.
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-primary-foreground/80">
-            Join learners who stopped watching tutorials and started building
-            careers — lifetime access, real projects, and a clear path from zero
+            Stop watching tutorials and start building a career — lifetime
+            access, real projects, and a clear path from zero
             to income.
           </p>
           <Button asChild size="lg" variant="secondary" className="mt-8">

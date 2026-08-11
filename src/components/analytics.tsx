@@ -1,7 +1,7 @@
 import Script from "next/script";
 
 // Privacy-friendly page-view analytics. Only loads if you set
-// NEXT_PUBLIC_PLAUSIBLE_DOMAIN (e.g. "academy.saasfoundry.xyz"). Point it at
+// NEXT_PUBLIC_PLAUSIBLE_DOMAIN (e.g. "www.saasfoundry.space"). Point it at
 // plausible.io or a self-hosted instance. No cookies, no personal data.
 export function Analytics() {
   const domain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN;

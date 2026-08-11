@@ -1,8 +1,8 @@
 name: Supabase keep-alive
 
-# Free Supabase projects pause after 7 days of inactivity. This pings the
-# REST API on a schedule so the project stays awake. Remove once you have
-# real daily traffic.
+# The free Supabase project pauses after 7 days of inactivity (TECH-STACK.md §3).
+# This workflow pings the REST API on a schedule so the project stays awake
+# during the quiet early days. Remove it once the app has real daily traffic.
 
 on:
   schedule:
@@ -27,6 +27,7 @@ jobs:
             -H "apikey: $SUPABASE_ANON_KEY" \
             "$SUPABASE_URL/rest/v1/")
           echo "Supabase responded with HTTP $code"
+          # Any HTTP response (even 401/404) proves the project is awake.
           if [ "$code" = "000" ]; then
             echo "No response from Supabase."
             exit 1

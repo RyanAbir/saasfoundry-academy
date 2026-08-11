@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { LegalDoc } from "@/components/legal-doc";
+import { siteConfig } from "@/lib/catalog";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 const CONTENT = `
-This Privacy Policy explains how SaaSFoundry Academy, operated by [Your legal/business name], handles your information.
+This Privacy Policy explains how SaaSFoundry Academy, operated by ${siteConfig.legalName}, handles your information.
 
 ## What we collect
 
@@ -47,7 +48,7 @@ The platform is not intended for children under 13.
 
 ## Changes & contact
 
-We may update this policy; changes are posted here. Questions or requests? Contact us at [contact email].
+We may update this policy; changes are posted here. Questions or requests? Contact us at ${siteConfig.supportEmail}.
 `;
 
 export default function PrivacyPage() {

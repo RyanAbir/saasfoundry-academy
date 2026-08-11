@@ -2,13 +2,23 @@ import { PrismaClient } from "@prisma/client";
 
 import { allProducts, tracks } from "../src/lib/catalog";
 
-// Seeds Course rows (3 tracks + bundle) and, for each track, its Modules and
-// Lessons from the catalog outline. Idempotent: courses upsert by slug, and a
-// track that already has modules is skipped so progress isn't wiped.
+// Seeds the PRODUCTS you sell: Course rows (3 tracks + bundle) from the catalog,
+// plus a first pass of Modules and Lessons from the catalog outline so a fresh
+// database is immediately browsable.
 //
-// Video IDs are a PLACEHOLDER (Big Buck Bunny — a Creative Commons clip) so the
-// player visibly works. Swap `videoId` on each Lesson for your real unlisted
-// YouTube/Vimeo IDs (or re-point to Bunny) — no schema change needed.
+// Idempotent: courses upsert by slug, and a track that already has modules is
+// skipped so progress isn't wiped. That skip is also why this script is NOT the
+// way to edit lessons — once a track is seeded, re-running changes nothing.
+//
+// Real lesson content (videos, durations, notes, previews) is owned by
+// `scripts/sync-content.ts`, which upserts by slug and is safe to re-run:
+//
+//     npm run content:sync -- --dry-run
+//     npm run content:sync
+//
+// See CONTENT.md. Video IDs seeded here are a PLACEHOLDER (Big Buck Bunny, a
+// Creative Commons clip) so the player visibly works before anything is
+// recorded.
 
 const prisma = new PrismaClient();
 
@@ -58,7 +68,13 @@ async function seedModulesAndLessons() {
     let lessonIndex = 0;
     for (const [mi, mod] of track.modules.entries()) {
       const createdModule = await prisma.module.create({
-        data: { courseId: course.id, title: mod.title, sortOrder: mi },
+        data: {
+          courseId: course.id,
+          // Matches the module's folder name under content/ — see CONTENT.md.
+          slug: slugify(mod.title),
+          title: mod.title,
+          sortOrder: mi,
+        },
       });
 
       for (const [li, lessonTitle] of mod.lessons.entries()) {
@@ -87,6 +103,7 @@ async function main() {
   await seedCourses();
   await seedModulesAndLessons();
   console.log("Seed complete.");
+  console.log("Next: author lessons in content/ and run `npm run content:sync`.");
 }
 
 main()

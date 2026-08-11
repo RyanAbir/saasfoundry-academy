@@ -4,6 +4,29 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { sendWelcomeEmail } from "@/lib/email";
 
+// Emails listed in ADMIN_EMAILS (comma-separated) are promoted to the admin
+// role on sign-in. Without this there is no way to become an admin — the
+// /admin screen would lock you out of your own dashboard until you edited the
+// database by hand. Removing an address here does NOT demote an existing
+// admin; do that in the database if you need to.
+function adminEmails(): string[] {
+  return (process.env.ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+}
+
+type UserRow = Awaited<ReturnType<typeof prisma.user.create>>;
+
+async function ensureAdminRole(user: UserRow): Promise<UserRow> {
+  if (user.role === "admin") return user;
+  if (!adminEmails().includes(user.email.toLowerCase())) return user;
+  return prisma.user.update({
+    where: { id: user.id },
+    data: { role: "admin" },
+  });
+}
+
 /** The Supabase Auth user for the current session (or null). */
 export async function getAuthUser() {
   const supabase = await createClient();
@@ -33,18 +56,19 @@ export async function getCurrentUser() {
   if (existing) {
     if (existing.authId !== authId) {
       // Pre-auth user found by email — attach the auth id now.
-      return prisma.user.update({
+      const linked = await prisma.user.update({
         where: { id: existing.id },
         data: { authId, name: existing.name ?? name },
       });
+      return ensureAdminRole(linked);
     }
-    return existing;
+    return ensureAdminRole(existing);
   }
 
   const created = await prisma.user.create({ data: { authId, email, name } });
   // Best-effort welcome email on first sign-in (no-ops if Resend isn't set).
   await sendWelcomeEmail({ to: created.email, name: created.name ?? "there" });
-  return created;
+  return ensureAdminRole(created);
 }
 
 export async function requireUser() {
