@@ -70,7 +70,14 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <SiteHeader />
-          <main className="flex flex-1 flex-col">{children}</main>
+          {/* [&>*]:w-full is load-bearing. Every page wraps itself in
+              `mx-auto max-w-*`, and as a flex item those auto side margins
+              override the default stretch — the box shrinks to its content
+              width and centres, so a page with one card renders one card wide.
+              Forcing full width on direct children restores the intended
+              centred-container layout while keeping flex-1 available to the
+              error and not-found pages. */}
+          <main className="flex flex-1 flex-col [&>*]:w-full">{children}</main>
           <SiteFooter />
         </ThemeProvider>
         <Analytics />
