@@ -7,9 +7,8 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 // Server actions give no visual feedback on their own: you click, and nothing
-// happens until the server responds. With the database in Mumbai and cold
-// starts on top, that gap is long enough that people click again or assume the
-// site is broken.
+// happens until the server responds. On a cold start that gap is long enough
+// that people click again or assume the site is broken.
 //
 // useFormStatus reads the pending state of the nearest parent <form>, so this
 // has to be a client component rendered *inside* the form (not the component

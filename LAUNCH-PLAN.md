@@ -193,7 +193,7 @@ re-add card/Rocket/bank to the supported list.
 ## 6. Phase 4 — Go-live hardening
 
 Point a scheduler (cron-job.org or similar) at `/api/warm` every few minutes so the serverless
-function and its Prisma connection to the Mumbai database stay booted — the route exists for
+function and its Prisma connection to the database stay booted — the route exists for
 this and nothing is calling it. Confirm the GitHub keep-alive Action has actually run at least
 once; the free Supabase project pauses after seven days of inactivity and a paused database
 means a dead site.

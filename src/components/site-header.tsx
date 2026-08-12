@@ -13,8 +13,7 @@ import { SubmitButton } from "@/components/submit-button";
 import { ModeToggle } from "@/components/mode-toggle";
 import { cn } from "@/lib/utils";
 
-// prefetch is disabled on nav links: with the database in Mumbai and the
-// server in another region, each prefetch is a slow cross-region round trip,
+// prefetch is disabled on nav links: each prefetch is a server round trip,
 // and prefetching every nav link on load fired a burst that clogged the
 // connection. Links still navigate normally on click.
 

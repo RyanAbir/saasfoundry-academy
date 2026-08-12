@@ -23,7 +23,7 @@ Three course tracks:
 |---|---|---|
 | Framework | **Next.js (App Router) + TypeScript** | One codebase for marketing + app; SSR/SEO for sales pages, server actions for the app. |
 | Styling / UI | **Tailwind CSS + shadcn/ui** | Matches the landing page already built; fast, consistent components. |
-| Database | **Supabase (PostgreSQL)** | Free tier, managed Postgres, scales later. |
+| Database | **Supabase (PostgreSQL)** — region **East US (Ohio)** | Free tier, managed Postgres, scales later. Deliberately co-located with Netlify's `cmh` functions: only the server talks to Postgres, so the database belongs next to the compute, not next to the users. An earlier Mumbai project made every query a US↔India round trip and put page loads at 10–15s. |
 | Auth | **Supabase Auth** | Free within the same platform (50k MAU); drops the need for a separate auth vendor. |
 | File storage | **Supabase Storage** | Thumbnails, resources, PDFs — same platform. |
 | ORM | **Prisma** | Type-safe schema + migrations over Postgres. |
